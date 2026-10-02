@@ -109,7 +109,7 @@ function Get-Oscdimg {
     if ($cmd) { return $cmd.Source }
 
     $roots = @(
-        "$env:ProgramFiles(x86)\Windows Kits",
+        "${env:ProgramFiles(x86)}\Windows Kits",
         "$env:ProgramFiles\Windows Kits"
     )
 
@@ -133,10 +133,13 @@ function Get-Unattend {
     }
 
     # Prefer autounattend.xml next to this PowerShell script.
-    $local = Join-Path $PSScriptRoot 'autounattend.xml'
-    if (Test-Path -LiteralPath $local) {
-        $script:UNATTEND = $local
-        return $script:UNATTEND
+    # $PSScriptRoot is empty when run from a downloaded scriptblock.
+    if ($PSScriptRoot) {
+        $local = Join-Path $PSScriptRoot 'autounattend.xml'
+        if (Test-Path -LiteralPath $local) {
+            $script:UNATTEND = $local
+            return $script:UNATTEND
+        }
     }
 
     $temp = Join-Path ([IO.Path]::GetTempPath()) ("win11-bypass-{0}.xml" -f ([guid]::NewGuid()))

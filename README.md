@@ -1,6 +1,6 @@
 # win11-bypass — Install Windows 11 without TPM 2.0, Secure Boot or internet (Ventoy)
 
-**Install Windows 11 on unsupported hardware (no TPM 2.0, older CPU, no Secure Boot, low RAM) and finish setup offline with a local account — no Microsoft account required.** Does what Rufus does, but works with **Ventoy** and runs on **Linux** with a single command.
+**Install Windows 11 on unsupported hardware (no TPM 2.0, older CPU, no Secure Boot, low RAM) and finish setup offline with a local account — no Microsoft account required.** Does what Rufus does, but works with **Ventoy** and runs on **Linux** and **Windows** with a single command.
 
 ---
 
@@ -55,7 +55,41 @@ curl -fsSL https://raw.githubusercontent.com/nutthawutkongsopa/win11-bypass/main
 
 ---
 
-## Windows / macOS: configure Ventoy by hand (~2 minutes)
+## Windows: one command (PowerShell)
+
+Open **PowerShell 7** (`pwsh`) and paste:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/nutthawutkongsopa/win11-bypass/main/get.ps1)))
+```
+
+You get the same menu as on Linux (`[1] Mod ISO`, `[2] Setup Ventoy USB`, `[3] Remove Ventoy config`). In Ventoy mode the USB is found by its `Ventoy` volume label.
+
+Without the menu:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/nutthawutkongsopa/win11-bypass/main/get.ps1))) iso $HOME\Downloads\Win11.iso
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/nutthawutkongsopa/win11-bypass/main/get.ps1))) ventoy E:\
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/nutthawutkongsopa/win11-bypass/main/get.ps1))) remove E:\
+```
+
+Or download/clone the repo and run it locally (uses the `autounattend.xml` next to it):
+
+```powershell
+pwsh -ExecutionPolicy Bypass -File .\get.ps1                          # menu
+pwsh -ExecutionPolicy Bypass -File .\get.ps1 iso .\Win11.iso -o .\Win11-bypass.iso
+pwsh -ExecutionPolicy Bypass -File .\get.ps1 ventoy E:\
+pwsh -ExecutionPolicy Bypass -File .\get.ps1 remove E:\
+pwsh -ExecutionPolicy Bypass -File .\get.ps1 help
+```
+
+**Requirements:** [PowerShell 7+](https://aka.ms/powershell) (Windows PowerShell 5.1 is not supported). ISO mode also needs [7-Zip](https://www.7-zip.org) and `oscdimg.exe` from the [Windows ADK](https://learn.microsoft.com/windows-hardware/get-started/adk-install) (select only **Deployment Tools**), plus free disk space of about 2× the ISO size. Ventoy mode needs nothing extra.
+
+> 💡 [Read the script](get.ps1) before running it.
+
+---
+
+## macOS (or any OS): configure Ventoy by hand (~2 minutes)
 
 1. Install [Ventoy](https://www.ventoy.net) **1.0.83 or newer** on a USB drive and copy your Windows 11 ISO onto it.
 2. Download [`autounattend.xml`](autounattend.xml) and save it on the USB as `ventoy\script\win11-autounattend.xml`.
@@ -92,7 +126,7 @@ curl -fsSL https://raw.githubusercontent.com/nutthawutkongsopa/win11-bypass/main
 
 **Does it work with Windows 11 24H2 / 25H2?** — Yes. ISO patching was tested with build 26300 (UDF, boots in both UEFI and legacy BIOS, handles `install.wim` larger than 4 GB).
 
-**How is this different from Rufus?** — Rufus writes one ISO per USB and runs on Windows only. This works with Ventoy (many ISOs on one USB) and runs on Linux.
+**How is this different from Rufus?** — Rufus writes one ISO per USB and runs on Windows only. This works with Ventoy (many ISOs on one USB) and runs on Linux and Windows.
 
 **Setup still asks for internet?** — Check that Ventoy is ≥ 1.0.83 and the ISO is booted in normal mode. If a new Windows build closes this path, please open an [issue](https://github.com/nutthawutkongsopa/win11-bypass/issues).
 
