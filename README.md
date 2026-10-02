@@ -1,37 +1,35 @@
-# win11-bypass — ติดตั้ง Windows 11 ไม่ต้องต่อเน็ต ข้าม TPM 2.0 / Secure Boot ผ่าน Ventoy
+# win11-bypass — Install Windows 11 without TPM 2.0, Secure Boot or internet (Ventoy)
 
-**ติดตั้ง Windows 11 บนเครื่องสเป็คไม่ถึง (ไม่มี TPM 2.0, CPU รุ่นเก่า, ไม่มี Secure Boot) และสร้างบัญชี Local Account ได้โดยไม่ต้องต่ออินเทอร์เน็ต ไม่ต้องใช้ Microsoft Account** — ทำได้เหมือน Rufus แต่ใช้กับ **Ventoy** ได้ และรันบน **Linux** ได้ด้วยคำสั่งเดียว
-
-> English: Install Windows 11 on unsupported hardware (bypass TPM 2.0, Secure Boot, RAM, CPU checks) and skip the forced internet / Microsoft account (BypassNRO, local account) — a Rufus-style `autounattend.xml` for **Ventoy** users, plus a one-command Linux script to patch the ISO. [Jump to English guide ↓](#english)
+**Install Windows 11 on unsupported hardware (no TPM 2.0, older CPU, no Secure Boot, low RAM) and finish setup offline with a local account — no Microsoft account required.** Does what Rufus does, but works with **Ventoy** and runs on **Linux** with a single command.
 
 ---
 
-## ทำอะไรได้บ้าง
+## What it does
 
-| ปัญหาตอนติดตั้ง Windows 11 | win11-bypass |
+| Windows 11 setup problem | win11-bypass |
 |---|---|
-| "This PC can't run Windows 11" (ไม่มี TPM 2.0 / Secure Boot / CPU ไม่รองรับ / RAM น้อย) | ✅ ข้ามการเช็คสเป็ค |
-| บังคับต่อ Wi-Fi / อินเทอร์เน็ตตอนตั้งค่าเครื่อง (OOBE) | ✅ ข้ามได้ |
-| บังคับล็อกอิน Microsoft Account | ✅ ซ่อนหน้า MS Account — พิมพ์ชื่อผู้ใช้ Local เอง |
-| หน้า EULA / คำถามความเป็นส่วนตัว | ✅ ข้ามให้ |
-| ล้างดิสก์ผิดลูก | ❌ ไม่แตะ — ยังเลือกพาร์ติชันเองเหมือนปกติ |
+| "This PC can't run Windows 11" (no TPM 2.0 / Secure Boot / unsupported CPU / low RAM) | ✅ Hardware checks skipped |
+| Forced Wi-Fi / internet connection during setup (OOBE) | ✅ Skipped |
+| Forced Microsoft account sign-in | ✅ Hidden — you type your own local user name |
+| EULA and privacy questions | ✅ Skipped |
+| Wiping the wrong disk | ❌ Never touched — you still pick the partition yourself |
 
-ใช้ได้ 2 แบบ เลือกอย่างใดอย่างหนึ่ง:
+Two ways to use it — pick one:
 
-1. **ตั้งค่า USB Ventoy** (แนะนำ) — ไม่ต้องแก้ไฟล์ ISO, ใช้ ISO ต้นฉบับจาก Microsoft ได้ทุกเวอร์ชัน
-2. **แก้ไฟล์ ISO** — ได้ ISO ใหม่ที่ฝังการตั้งค่าไว้แล้ว เอาไปใช้กับ Ventoy, Rufus หรือ VM ได้ทุกที่
+1. **Configure a Ventoy USB** (recommended) — the ISO is left untouched, so any official Microsoft ISO works.
+2. **Patch the ISO** — produces a new ISO with the settings built in; use it with Ventoy, Rufus, a VM, anything.
 
 ---
 
-## วิธีใช้บน Linux (คำสั่งเดียว)
+## Linux: one command
 
-เปิด Terminal แล้ววาง:
+Open a terminal and paste:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/nutthawutkongsopa/win11-bypass/main/get.sh | bash
 ```
 
-จะขึ้นเมนู:
+You get a menu:
 
 ```
   [1] Mod ISO            (add autounattend.xml, rebuild ISO)
@@ -40,28 +38,28 @@ curl -fsSL https://raw.githubusercontent.com/nutthawutkongsopa/win11-bypass/main
   [0] Exit
 ```
 
-- **[1] Mod ISO** — ใส่ path ไฟล์ ISO (เช่น `~/Downloads/Win11_24H2_Thai_x64.iso`) จะได้ไฟล์ `...-bypass.iso` อยู่ข้าง ๆ กัน
-- **[2] Setup Ventoy USB** — เสียบ USB ที่ลง Ventoy ไว้ (คัดลอก ISO Windows 11 ลง USB ก่อน) สคริปต์จะหา USB เอง
-- **[3] Remove** — ลบการตั้งค่าที่สคริปต์ใส่ไว้ ไม่แตะการตั้งค่าอื่นของ Ventoy
+- **[1] Mod ISO** — enter the ISO path (e.g. `~/Downloads/Win11_24H2_English_x64.iso`); a `...-bypass.iso` is written next to it.
+- **[2] Setup Ventoy USB** — plug in your Ventoy USB (copy the Windows 11 ISO onto it first); the script finds it automatically.
+- **[3] Remove** — removes only what this script added; your other Ventoy settings stay.
 
-แบบไม่ผ่านเมนู:
+Without the menu:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/nutthawutkongsopa/win11-bypass/main/get.sh | bash -s -- iso ~/Downloads/Win11.iso
 curl -fsSL https://raw.githubusercontent.com/nutthawutkongsopa/win11-bypass/main/get.sh | bash -s -- ventoy /media/$USER/Ventoy
 ```
 
-**ต้องมี:** `7z` และ `genisoimage` (หรือ `mkisofs`) สำหรับโหมด ISO, `python3` สำหรับโหมด Ventoy — ถ้าไม่มี สคริปต์จะถามก่อนติดตั้งให้ (รองรับ apt / dnf / pacman / zypper) • พื้นที่ว่างประมาณ 2 เท่าของขนาด ISO
+**Requirements:** `7z` and `genisoimage` (or `mkisofs`) for ISO mode, `python3` for Ventoy mode — if missing, the script asks before installing them (apt / dnf / pacman / zypper). Free disk space of about 2× the ISO size.
 
-> 💡 แนะนำให้ [อ่านสคริปต์](get.sh) ก่อนรันทุกครั้ง — เป็นนิสัยที่ดีกับคำสั่ง `curl | bash` ทุกตัว
+> 💡 [Read the script](get.sh) before running it — a good habit with any `curl | bash` command.
 
 ---
 
-## วิธีใช้บน Windows / macOS (ตั้งค่า Ventoy ด้วยมือ ~2 นาที)
+## Windows / macOS: configure Ventoy by hand (~2 minutes)
 
-1. ติดตั้ง [Ventoy](https://www.ventoy.net) ลง USB (เวอร์ชัน **1.0.83 ขึ้นไป**) แล้วคัดลอกไฟล์ ISO Windows 11 ลงไป
-2. ดาวน์โหลด [`autounattend.xml`](autounattend.xml) ไปวางที่ `ventoy\script\win11-autounattend.xml` บน USB
-3. สร้าง/แก้ไฟล์ `ventoy\ventoy.json` บน USB (เปลี่ยน `/Win11.iso` ให้ตรงชื่อไฟล์ของคุณ):
+1. Install [Ventoy](https://www.ventoy.net) **1.0.83 or newer** on a USB drive and copy your Windows 11 ISO onto it.
+2. Download [`autounattend.xml`](autounattend.xml) and save it on the USB as `ventoy\script\win11-autounattend.xml`.
+3. Create or edit `ventoy\ventoy.json` on the USB (change `/Win11.iso` to your file name):
 
 ```json
 {
@@ -79,53 +77,39 @@ curl -fsSL https://raw.githubusercontent.com/nutthawutkongsopa/win11-bypass/main
 }
 ```
 
-> ถ้ามี `ventoy.json` อยู่แล้ว ให้เพิ่มเฉพาะรายการด้านบนเข้าไป อย่าลบของเดิม และบันทึกเป็น UTF-8 (ไม่มี BOM)
+> If `ventoy.json` already exists, add just these entries and keep the rest. Save it as UTF-8 **without BOM**.
 
 ---
 
-## ขั้นตอนติดตั้ง Windows 11 หลังเตรียม USB
+## Installing Windows 11 after preparing the USB
 
-1. บูตเครื่องจาก USB → เลือก ISO Windows 11 ในเมนู Ventoy (โหมดปกติ ไม่ใช่ wimboot)
-2. เลือกภาษา / พาร์ติชันตามปกติ — **จะไม่เจอหน้า "This PC can't run Windows 11"**
-3. หลังรีสตาร์ท ถึงหน้าตั้งค่าเครื่อง (OOBE) **ไม่ต้องต่อเน็ต** → พิมพ์ชื่อผู้ใช้และรหัสผ่านของ Local Account
-4. เสร็จ 🎉
+1. Boot from the USB → pick the Windows 11 ISO in the Ventoy menu (normal mode, not wimboot).
+2. Choose language and partition as usual — **no "This PC can't run Windows 11" screen**.
+3. After the reboot, at the device setup screens (OOBE) **no internet is needed** → enter a user name and password for your local account.
+4. Done 🎉
 
-## คำถามที่พบบ่อย (FAQ)
+## FAQ
 
-**ใช้กับ Windows 11 24H2 / 25H2 ได้ไหม?** — ได้ ทดสอบสร้าง ISO กับ build 26300 แล้ว (UDF, บูตได้ทั้ง UEFI และ Legacy BIOS, install.wim ขนาดเกิน 4GB ได้)
+**Does it work with Windows 11 24H2 / 25H2?** — Yes. ISO patching was tested with build 26300 (UDF, boots in both UEFI and legacy BIOS, handles `install.wim` larger than 4 GB).
 
-**ต่างจาก Rufus ยังไง?** — Rufus ต้องเขียนลง USB ทีละ ISO และใช้ได้บน Windows เท่านั้น ส่วนนี้ใช้กับ Ventoy (USB อันเดียวใส่ได้หลาย ISO) และรันบน Linux ได้
+**How is this different from Rufus?** — Rufus writes one ISO per USB and runs on Windows only. This works with Ventoy (many ISOs on one USB) and runs on Linux.
 
-**ยังขึ้นบังคับต่อเน็ต?** — ตรวจว่า Ventoy เวอร์ชัน ≥ 1.0.83 และบูตแบบโหมดปกติ (normal mode) ถ้า Microsoft ปิดช่องทางนี้ใน build ใหม่ กรุณาเปิด [Issue](https://github.com/nutthawutkongsopa/win11-bypass/issues)
+**Setup still asks for internet?** — Check that Ventoy is ≥ 1.0.83 and the ISO is booted in normal mode. If a new Windows build closes this path, please open an [issue](https://github.com/nutthawutkongsopa/win11-bypass/issues).
 
-**ปลอดภัยไหม?** — สคริปต์ไม่แก้ไฟล์ระบบ Windows ใน ISO แค่เพิ่ม `autounattend.xml` (ไฟล์ตั้งค่าการติดตั้งมาตรฐานของ Microsoft) อ่านได้ทุกบรรทัดใน repo นี้
+**Is it safe?** — Nothing inside Windows itself is modified; only an `autounattend.xml` (Microsoft's standard answer file) is added. Every line is readable in this repo.
 
-**เครื่องที่ไม่ผ่านสเป็คจะได้อัปเดตไหม?** — Microsoft ไม่รับประกันการอัปเดตบนเครื่องที่ไม่รองรับอย่างเป็นทางการ ใช้ด้วยความเข้าใจความเสี่ยงนี้
+**Will unsupported PCs get updates?** — Microsoft does not guarantee updates on officially unsupported hardware. Use it knowing that risk.
 
----
+## How it works
 
-<a id="english"></a>
-## English
-
-**win11-bypass** lets you install Windows 11 on unsupported PCs and finish setup offline with a local account:
-
-- Bypasses TPM 2.0, Secure Boot, RAM, CPU and storage checks (`LabConfig`)
-- Skips the forced internet connection in OOBE (`BypassNRO`)
-- Hides Microsoft account, Wi-Fi, EULA and privacy pages — you still type your own local user name
-- Never touches disk/partition settings
-
-**Linux one-liner** (menu: patch ISO / configure Ventoy USB / remove):
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/nutthawutkongsopa/win11-bypass/main/get.sh | bash
-```
-
-**Windows / macOS:** configure Ventoy by hand — copy [`autounattend.xml`](autounattend.xml) to `ventoy/script/win11-autounattend.xml` on the USB and add the `ventoy.json` snippet [above](#วิธีใช้บน-windows--macos-ตั้งค่า-ventoy-ด้วยมือ-2-นาที). Requires Ventoy ≥ 1.0.83, boot the ISO in normal mode.
-
-The patched ISO is UDF with both BIOS (`etfsboot.com`) and UEFI (`efisys.bin`) El Torito entries, so it also works with Rufus, VMs, or any USB writer.
+- `windowsPE` pass: sets `HKLM\SYSTEM\Setup\LabConfig` `BypassTPMCheck`, `BypassSecureBootCheck`, `BypassRAMCheck`, `BypassCPUCheck`, `BypassStorageCheck`
+- `specialize` pass: sets `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE\BypassNRO`
+- `oobeSystem` pass: `HideOnlineAccountScreens`, `HideWirelessSetupInOOBE`, `HideEULAPage`, `ProtectYourPC=3`
+- No disk, locale, product key or user account settings — setup stays interactive where it matters
+- Patched ISO: UDF with both BIOS (`etfsboot.com`) and UEFI (`efisys.bin`) El Torito boot entries
 
 ## License
 
 [MIT](LICENSE) — not affiliated with Microsoft or Ventoy.
 
-<!-- keywords: ติดตั้ง windows 11 ไม่ต้องต่อเน็ต, windows 11 ข้าม tpm, ventoy windows 11 bypass, ลง windows 11 เครื่องสเป็คไม่ถึง, windows 11 local account, bypass tpm 2.0 secure boot, bypassnro, autounattend.xml, rufus alternative linux, windows 11 offline install -->
+<!-- keywords: install windows 11 without internet, windows 11 bypass tpm, ventoy windows 11 bypass, windows 11 unsupported hardware, windows 11 local account, bypass tpm 2.0 secure boot, bypassnro, autounattend.xml, rufus alternative linux, windows 11 offline install, ติดตั้ง windows 11 ไม่ต้องต่อเน็ต, windows 11 ข้าม tpm -->
